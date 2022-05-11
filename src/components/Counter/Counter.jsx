@@ -1,40 +1,69 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useReducer } from 'react'
 
-const pinkRGB = `rgb(236, 72, 153)`
+const pink = `rgb(236, 72, 153)` // pink
+const initialCount = 0
+const ACTIONS = {
+  INCREMENT: 'increment',
+  DECREMENT: 'decrement',
+  RESET_COUNT: 'reset',
+  SET_COLOR: 'set-color',
+}
+
+const countReducer = (state, action) => {
+  switch (action.type) {
+    case ACTIONS.INCREMENT:
+      return state + 1
+    case ACTIONS.DECREMENT:
+      return state - 1
+    case ACTIONS.RESET_COUNT:
+      return 0
+    default:
+      return state
+  }
+}
+
+const colorReducer = (state, action) => {
+  switch (action.type) {
+    case ACTIONS.SET_COLOR:
+      return { color: action.payload.color }
+    default:
+      return state
+  }
+}
 
 export default function Counter() {
-  const [count, setCount] = useState(0)
-  const [currentColor, setCurrentColor] = useState(pinkRGB)
+  const [count, dispatchCount] = useReducer(countReducer, initialCount)
+  const [color, dispatchColor] = useReducer(colorReducer, pink)
 
   useEffect(() => {
     if (count === 0) {
-      setCurrentColor(pinkRGB)
+      dispatchColor({ type: ACTIONS.SET_COLOR, payload: { color: pink } })
     }
 
     if (count > 0) {
-      setCurrentColor(`rgb(52, 211, 153)`)
+      dispatchColor({ type: ACTIONS.SET_COLOR, payload: { color: `rgb(52, 211, 153)` } }) // green
     }
 
     if (count < 0) {
-      setCurrentColor(`rgb(239, 68, 68)`)
+      dispatchColor({ type: ACTIONS.SET_COLOR, payload: { color: `rgb(239, 68, 68)` } }) // red
     }
   }, [count])
 
   const increment = () => {
-    setCount((prevState) => prevState + 1)
+    dispatchCount({ type: ACTIONS.INCREMENT })
   }
 
   const decrement = () => {
-    setCount((prevState) => prevState - 1)
+    dispatchCount({ type: ACTIONS.DECREMENT })
   }
 
   const reset = () => {
-    setCount(0)
+    dispatchCount({ type: ACTIONS.RESET_COUNT })
   }
 
   return (
     <main className="bg-black bg-opacity-90 min-h-screen flex flex-col items-center justify-center text-4xl text-pink-500">
-      <h1 className="mb-5" style={{ color: currentColor }}>
+      <h1 className="mb-5" style={{ color: color.color }}>
         {count}
       </h1>
       <div className="flex w-1/2 justify-around">
